@@ -101,17 +101,22 @@ Minimize the area affected by intruding noises in a quadrilateral room.
 
 - Arrows show sound propagation direction.
 - Black dots = microphones.
-- Sound waves moving **perpendicular to an edge** won't enter the room.
-- When propagation angle shifts (e.g., from right vertex), some sound leaks in before the system reacts.
-
-### Observations
-- Red wavefront = potential leakage before detection.
-- Adding mics on the opposite side (left) can prevent leakage.
+- Sound waves moving **perpendicular to an edge** won't enter the room no matter the orientation of microphones on a particular edge closes to source.
+- When propagation angle shifts from 90 degrees to a more acute angle, some sound leaks in before the system reacts.
 
 ---
 
 ![Phased Array on Vertex](./images/optimal-mic-positions2.png)
 
+### Observations
+- We only consider a two element phased array to be closest to right vertex
+- The red wavefront came from the left and the highlighted pink area shows how much area it travels over before it can be detected by current system.
+- Adding mics on the opposite side (left) can prevent leakage.
+
+---
+
+
+![Phased Array on Vertex](./images/optimal-mic-pos3.png)
 
 ### Key Insight
 - When sound comes from the same quadrant, no new mics are needed.
@@ -126,21 +131,21 @@ Minimize the area affected by intruding noises in a quadrilateral room.
 
 ---
 
-![Phased Array on Vertex](./images/optimal-mic-pos3.png.png)
-![Phased Array on Vertex](./images/optimal-mic-pos4.png.png)
-
-
 ## Problem from Other Quadrants
 
 - Brown wavefront from another quadrant shows major leakage.
 - If no mics are placed in that quadrant, system won’t respond in time.
 
+![Phased Array on Vertex](./images/optimal-mic-pos4.png)
+
+
 **Conclusion:** You need **two mics per corner** of a 2D room.
 
 ---
 
-## Question:
+### Question:
 If the wavefront comes from a specific quadrant, how do we activate **only** the correct phased mic array?
+- Directional Mics can help remove noise from behind
 
 ---
 
