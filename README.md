@@ -62,7 +62,7 @@ This implies that the angle the wavefront travels relative to a perpendicular wa
 ![System Archeticture](./images/hardware-arch.png)
 
 ### Receiver Side:
-- Two microphones connect to LNA + 0 IF
+- Two microphones 
 - LNA filters out frequencies outside of human hearing and very quiet noises
 
 ### Transmit Side:
