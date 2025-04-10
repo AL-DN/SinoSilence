@@ -221,6 +221,7 @@ However the major issue is how to setup the system to have complete noise cancel
 
 We need to compute the direction of the reflected sound wave until the amplitude is negligible. We know that the angle of reflection is equal to the angle of insicdent. How do we find when the amplitude drops to unhearable levels.
 
+We can also avoid unnessary computaiton for cancellation noises by making sure its on path with user
 
 
 ---
