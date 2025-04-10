@@ -57,7 +57,7 @@ We can see here that phase delay $\propto$
 
 ### Solving for Angle of Arrival (θ)
 
-For our algorithm we need $\theta$ so if we use algebra we can see that:
+For our algorithm, we need $\theta$ so if we use algebra we can see that:
 
 $$
  v  
@@ -99,6 +99,20 @@ The **highest peak on this chart** represents the **optimal phase delay**,
 which corresponds to the actual **direction of the incoming sound**.
 
 This peak tells us the **angle of arrival** that best aligns the signals.
+
+---
+
+We can use this in our algorithm and compute theta efficiently once the correct phase delay is given.
+
+### Pseudocode
+1. Get audio sample from mics
+2. Scan for optimal phase delay
+3. Compute $\theta$
+4. Output Steering Angle Chart
+
+
+Once this is working, we can move onto how to expand to 3D:
+
 
 
 
@@ -201,37 +215,9 @@ Minimize the area affected by intruding noises in a quadrilateral room.
 **Conclusion:** You need **two mics per corner** of a 2D room.
 
 ---
+We can see that it is possible to find the initial angle of propagation. However, cancelling that noise becomes a lot more difficult.
+We can use a concept called beamsteering to direct the inverse cancellation wave wherever we want without nearby people or animals hearing it.
+However the major issue is how to setup the system to have complete noise cancellation at the user. WE can easily intercept the noise by sending the nosie cancellation sound from anywhere however, there are ramifications in the form of the reflecting sound waves
 
-### Question:
-If the wavefront comes from a specific quadrant, how do we activate **only** the correct phased mic array?
-- Directional Mics can help remove noise from behind
-
----
-
-## Context Model
-
-### System Boundaries
-
-All systems are part of **Sinusilence**.
-
-- **Adaptive Beam Forming (ABF)**  
-  - Input: Intruding noise  
-  - Output: Direction of noise source
-
-- **Beamforming System**  
-  - Uses:  
-    - Direction from ABF  
-    - Wall location and emission delay from User Position System  
-  - Output: Targeted anti-noise signal sent toward user for optimal cancellation
-
----
-
-## Use Case
-
-The user can interact through a knob that adjusts values from 0–100:
-
-- 0 = system off  
-- 100 = full cancellation  
-- In-between = partial noise reduction
 
 ---
