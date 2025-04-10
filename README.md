@@ -27,22 +27,46 @@ Initially solving this issue in **2D** will be simpler than in **3D**, and it's 
 ![Steering Angle](./images/understanding-steering-angle.png)
 
 
-### Delay Descriptions
+### Delay 
 
-1. **Distance Delay:**  
-   L = d × sin(θ)
+Phase Delay was used in the development for a system for radio frequencies so I will implement that first.
 
-2. **Time Delay Between Mics:**  
-   Δt = L / 343 m/s = (d × sin(θ)) / 343
+$$
+\text{Phase Shift between mics}=\Delta \phi = \omega \cdot \Delta t 
+$$
+$$
+\text{Time Delay Between Mics}=\Delta t = \frac{L}{v}
+$$`
+$$
+  \text{Distance Delay}= L = d\sin(\theta)
+$$
 
-3. **Phase Shift Between Elements:**  
-   ΔΦ = (2 × π × f × d × sin(θ)) / 343
 
-This implies that the angle the wavefront travels relative to a perpendicular wall is θ, and:
-ΔΦ = (2πfd sin(θ)) / 343
 
+$$
+\text{Angular Frequency}=\omega = 2 \pi f
+$$
+$$
+\Delta \phi = 2 \pi f \cdot \frac{d\sin(\theta)}{v}
+$$
+
+We can see here that phase delay $\propto$
+1. frequency of the intruding sound wave
+2. distance between mics
+3. Incident angle
+
+### Solving for Angle of Arrival (θ)
+
+For our algorithm we need $\theta$ so if we use algebra we can see that:
+
+$$
+ v  
+$$
 ---
+## Experiment 1:
+Each incident angle has a corresponding phase de
 
+Given $f$ and $d$ we can iterate through 180 degrees of phase shift 
 ## ADALM-PLUTO (Software-Defined Radio Platform)
 
 ### Receiver Side:
