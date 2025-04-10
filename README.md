@@ -64,9 +64,44 @@ $$
 $$
 ---
 ## Experiment 1:
-Each incident angle has a corresponding phase de
 
-Given $f$ and $d$ we can iterate through 180 degrees of phase shift 
+$$
+v
+$$
+
+### 🎯 Phase Delay Scanning in a Phased Array System
+
+**If we give the phased array (PA) the correct phase delay**,  
+the summation of the raw audio input from the first microphone  
+and the phase-shifted signal from the second microphone  
+will result in **maximum constructive interference**.
+
+---
+
+However, if we **do not know the correct angle of arrival**,  
+we can **iterate through all possible phase delays** and measure the result of each summation.
+
+> **NOTE:**  
+> By limiting the range of phase delays we scan,  
+> we can effectively **block or suppress noise from certain angles**,  
+> allowing for directional listening or filtering.
+
+---
+
+### 📈 Output: Phase Scan Chart
+
+The result of this process is a **chart** where:
+
+- **X-axis** = Phase delay (in radians or degrees)  
+- **Y-axis** = Magnitude or power of the summed signal
+
+The **highest peak on this chart** represents the **optimal phase delay**,  
+which corresponds to the actual **direction of the incoming sound**.
+
+This peak tells us the **angle of arrival** that best aligns the signals.
+
+
+
 ## ADALM-PLUTO (Software-Defined Radio Platform)
 
 ### Receiver Side:
