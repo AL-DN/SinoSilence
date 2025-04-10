@@ -217,7 +217,10 @@ Minimize the area affected by intruding noises in a quadrilateral room.
 ---
 We can see that it is possible to find the initial angle of propagation. However, cancelling that noise becomes a lot more difficult.
 We can use a concept called beamsteering to direct the inverse cancellation wave wherever we want without nearby people or animals hearing it.
-However the major issue is how to setup the system to have complete noise cancellation at the user. WE can easily intercept the noise by sending the nosie cancellation sound from anywhere however, there are ramifications in the form of the reflecting sound waves
+However the major issue is how to setup the system to have complete noise cancellation at the user. WE can easily intercept the noise by sending the nosie cancellation sound from anywhere however, there are ramifications in the form of the reflecting sound waves.
+
+We need to compute the direction of the reflected sound wave until the amplitude is negligible. We know that the angle of reflection is equal to the angle of insicdent. How do we find when the amplitude drops to unhearable levels.
+
 
 
 ---
