@@ -24,7 +24,7 @@ Initially solving this issue in **2D** will be simpler than in **3D**, and it's 
 - Depending on the angle, the wavefront will hit one mic first.
 - **Goal**: Choose a delay for each mic so the wave can be summed into a much larger signal.
 
-![Steering Angle](./images/understanding-steering-angle.png)
+![Steeriing Angle](./images/understanding-steering-angle.png)
 
 
 ### Delay 
@@ -151,19 +151,6 @@ Once this is working, we can move onto how to expand to 3D:
 
 ---
 
-### Phase & Delay Table
-
-| θ (degrees) | ΔΦ (radians) | Δt = d × sin(θ) / 343 (s) | ΔΦ = 2πfΔt (degrees) |
-|-------------|----------------|-----------------------------|------------------------|
-| 0°          | 0              | 0                           | 0                      |
-| 20°         | ≈ 0.34         | (calculate)                 | (calculate)            |
-| 30°         |                |                             |                        |
-| 45°         |                |                             |                        |
-| 60°         |                |                             |                        |
-| 75°         |                |                             |                        |
-| 90°         |                |                             |                        |
-
----
 
 ## 2D Room — Optimal Microphone Locations
 
@@ -215,13 +202,234 @@ Minimize the area affected by intruding noises in a quadrilateral room.
 **Conclusion:** You need **two mics per corner** of a 2D room.
 
 ---
-We can see that it is possible to find the initial angle of propagation. However, cancelling that noise becomes a lot more difficult.
-We can use a concept called beamsteering to direct the inverse cancellation wave wherever we want without nearby people or animals hearing it.
-However the major issue is how to setup the system to have complete noise cancellation at the user. WE can easily intercept the noise by sending the nosie cancellation sound from anywhere however, there are ramifications in the form of the reflecting sound waves.
 
-We need to compute the direction of the reflected sound wave until the amplitude is negligible. We know that the angle of reflection is equal to the angle of insicdent. How do we find when the amplitude drops to unhearable levels.
+# Part 2: Cancellation noise
 
-We can also avoid unnessary computaiton for cancellation noises by making sure its on path with user
+The cancellation noise will simply be the inverse of the recieved noise signal.
 
+## Finding Optimal Speaker Orientation
+
+The first design that came to mind was placing 4 speakers at the middle of each edge. 
+
+![4 Speaker Design](./images/speaker-orientation.png)
+Green Circle = Phased Array
+Orange Rectangles = Speakers
+Black Arrow = Intruding Noise
+
+Just from looking at it one might be able to see that in the worst case the user can be right up against the wall in which the intruding noise intial penetrates through.
+In this case I do not see a senario where we could possibly intercept it in time. However. If we understand how "late" our inverse wave will be we can shift it properly so that although it is late it will be in phase with the intruding noise.
+
+## 🧮 Latency Analysis Formula
+
+To determine if anti-noise can effectively cancel an intruding sound, we compare the time it takes for the noise to reach the listener with the time it takes for our system to detect and respond.
+
+### ✅ Net Latency Formula
+
+**Latency** = **Intruding Propagation Time** − **System Response Time**
+
+**Latency** =  *t<sub>intrude</sub>* − (  *t<sub>mic</sub>* + *t<sub>beamform</sub>*+  *t<sub>generate</sub>* + *t<sub>speaker</sub>*+ *t<sub>inverse</sub>*  )
 
 ---
+
+### 📘 Definitions:
+
+- **t<sub>intrude</sub>**: Time for the intruding sound to reach the listener  
+  - *t<sub>intrude</sub>* = *d<sub>listener</sub>* / *v*
+
+- **t<sub>mic</sub>**: Microphone hardware delay  
+- **t<sub>beamform</sub>**: Time to compute direction of arrival  
+- **t<sub>generate</sub>**: Time to generate the anti-noise signal  
+- **t<sub>speaker</sub>**: Speaker output delay  
+- **t<sub>inverse</sub>**: Time for the anti-noise to reach the listener  
+  - *t<sub>inverse</sub>* = *d<sub>spk</sub>* / *v*
+
+
+### ✅ Decision Logic
+
+- If **Latency > 0** → Emit anti-noise normally ✅  
+- If **Latency < 0** (e.g., within half a wave period) → Emit with phase shift ⚠️ 
+--- 
+
+Now we have effectively solved how we can deal with the worst cases However, I am quite curious to see how bad the worse cases are.
+
+# 🧪 Worst-Case Latency vs. Mic/Speaker Count 
+
+We can test the worst case by considering when the intruding noise reaches the user the fastest and is farthest from the speaker. the inverse noise takes t senario where the user is at the maximum distance from a speaker while being the closest to the intruding noise. This must take place on the edge.
+
+# 🔊 Worst-Case Latency vs. Speaker Count (10m Wall)
+
+## Room Setup:
+- Wall length: 10 meters
+- Intruding noise enters from an edge of the wall
+- Listener is positioned **right at the edge**, closest to intrusion
+- Speakers are evenly spaced along the wall
+
+## Constants:
+- Speed of sound (v): **343 m/s**
+- Fixed system delays (excluding propagation):  
+**System Time** =    *t<sub>mic</sub>* + *t<sub>beamform</sub>*+  *t<sub>generate</sub>* + *t<sub>speaker</sub>*+ *t<sub>inverse</sub>*  
+
+---
+
+## 📊 Latency Table
+
+# 🔊 Corrected Worst-Case Latency vs. Speaker Count (10m Wall)
+
+| # of Speakers | Segment Count | Spacing (m) | Max Dist to Speaker (m) | Inverse Propagation Time (ms) | Total System Time (ms) | Latency (ms)  |
+|---------------|----------------|-------------|--------------------------|-------------------------------|-------------------------|---------------|
+| 1             | 1              | 10.00       | 5.00                     | 14.58                          | 17.08                   | -16.11        |
+| 2             | 3              | 3.33        | 1.67                     | 4.87                           | 7.37                    | -6.40         |
+| 3             | 4              | 2.50        | 1.25                     | 3.65                           | 6.15                    | -5.18         |
+| 4             | 5              | 2.00        | 1.00                     | 2.92                           | 5.42                    | -4.45         |
+
+> Inverse Propagation Time = (Max Distance) / 343 × 1000  
+> Latency = 0.97 ms (intruding wave delay from 1/3 m away) − Total System Time
+
+As we can see even with 4 mics the delay is estimated at 4.4.5ms. However by using parrallel program we can reduce it to ~1ms. This would make the delay almost very hard to pickup on. 
+
+## Handling Reflections
+
+Last but not easiest,  we can  intercept the noise by sending the nosie cancellation sound from anywhean optimal speaker location however, there are ramifications in the form of the reflecting sound waves.
+
+We will tackle this in the following steps:
+1. Calculate Loudness as a function of distance traveled by sound wave.
+- If the loudness is below threshold before reaching another wall stop
+2. Calulate Loudness after reflection
+3. Repeat Step 1
+
+Now if it will never hit the user than it doesnt really matter 
+
+## 1. 📉 Loudness Decrease Over Distance
+
+In free space (with no reflections), sound intensity decreases with the square of the distance. This is known as the **inverse square law**.
+
+The **loudness in decibels** at a given distance can be calculated as:
+
+**L<sub>r</sub> = L<sub>0</sub> - 20 &middot; log<sub>10</sub>(r / r<sub>0</sub>)**
+
+Where:
+
+- **L<sub>r</sub>** = Loudness at distance `r` (in dB)  
+- **L<sub>0</sub>** = Loudness at reference distance r<sub>0</sub> (in dB)  
+- **r** = Distance from the source (in meters)  
+- **r<sub>0</sub>** = Reference distance (usually 1 meter)  
+
+> 🔁 Every time the distance **doubles**, the loudness drops by approximately **6 dB**.
+
+### 🧪 Example
+
+If a sound is 80 dB at 1 meter, the loudness at 2 meters is:
+
+**L<sub>2</sub> = 80 - 20 &middot; log<sub>10</sub>(2 / 1) = 80 - 6.02 ≈ 74 dB**
+
+We need to compute the direction of the reflected sound wave until the amplitude is negligible. 
+
+## 📉 2. Loudness After Reflection
+
+When a sound wave reflects off a surface, part of its energy is lost depending on the surface's properties. This affects both its **intensity** and **perceived loudness**.
+
+### 1. Calculating Sound Intensity from Pressure Amplitude
+
+If you have the pressure amplitude of a sound wave (e.g., from a microphone), you can calculate its intensity using:
+$$
+I = \frac{p_{\text{rms}}^2}{\rho v}
+$$
+Where:
+- $( I $) = Sound intensity in watts per square meter (W/m²)  
+- $( p_{\text{rms}} $) = Root-mean-square sound pressure (Pa)  
+- $( \rho $) = Air density (≈ 1.21 kg/m³ at room temperature)  
+- $( v $) = Speed of sound in air (≈ 343 m/s)
+
+
+### 2. Reflected Sound Intensity
+
+The intensity of the reflected sound wave is:
+
+**I<sub>r</sub> = R² · I<sub>i</sub>**
+
+Where:
+
+- **I<sub>r</sub>** = Reflected sound intensity (W/m²)  
+- **I<sub>i</sub>** = Incident (original) sound intensity (W/m²)  
+- **R** = Reflection coefficient (0 ≤ R ≤ 1), specific to the material
+
+---
+
+### 📊 2. Sound Level in Decibels
+
+The loudness of a sound in decibels (dB) is calculated from its intensity:
+
+**L = 10 · log₁₀(I / I₀)**
+
+Where:
+
+- **L** = Sound level in decibels (dB)  
+- **I** = Sound intensity (W/m²)  
+- **I₀** = Reference intensity = 10⁻¹² W/m² (threshold of hearing)
+
+---
+
+## Psuedo Code - 2D Solution
+```
+function trace_ray(theta, start_edge, l0, threshold):
+    while True:
+        # Step 1: Compute distance traveled in this ray segment
+        hyp = start_edge / cos(theta)
+        
+        # Step 2: Attenuate loudness over that distance
+        l1 = calculate_loudness_after_distance(l0, hyp)
+        
+        # Step 3: Check if it's still bothersome
+        if l1 > threshold:
+            # Step 4: Reflect and continue tracing
+            r1 = calculate_loudness_after_reflection(l1)
+            
+            # Step 5: Compute new start edge for next travel
+            new_start_edge = hyp * sin(theta)  # opp
+            
+            # Recursive call with updated loudness and edge
+            trace_ray(theta, new_start_edge, r1, threshold)
+            return
+        else:
+            # Exit if no longer bothersome
+            return
+```
+$$
+\text{n = number of reflections before the sound will drop below threshold }
+$$
+$$
+\text{Time complexity} = O(n)
+$$
+$$
+\text{Space Complexity} = O(n) \text{ because of the recursive call. It will add a new stack frame }
+$$
+```
+function trace_ray(theta, start_edge, l0, threshold):
+    while True:
+        # Step 1: Compute distance traveled in this ray segment
+        hyp = start_edge / cos(theta)
+        
+        # Step 2: Calculate loudness after distance traveled
+        l1 = calculate_loudness_after_distance(l0, hyp)
+        
+        # Step 3: Check if it's still bothersome
+        if l1 > threshold:
+            theta = theta
+            start_edge = sin(theta)*hyp 
+            l0=l1
+            threshold = threshold
+        else:
+            # Exit if no longer bothersome
+            return
+```
+$$
+\text{n = number of reflections before the sound will drop below threshold }
+$$
+$$
+\text{Time complexity} = O(n)
+$$
+$$
+\text{Space Complexity} = O(1)
+$$
+
+Now this program does not account for all rays passing through which can be understood to be the area of the traingle we are repeatedly using for the ray tracing algorithm. Its also not in 3D but before we do that we must find a way to identify if the user is inside the area hit by reflection wave. we need to find a way to cancel it. We are also not consider when the wave propgate thru the adjacent wall. we could probably run the same algo in parrallel but just given a different start_edge. 
