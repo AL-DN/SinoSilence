@@ -291,6 +291,9 @@ As we can see even with 4 mics the delay is estimated at 4.4.5ms. However by usi
 
 Last but not easiest,  we can  intercept the noise by sending the nosie cancellation sound from anywhean optimal speaker location however, there are ramifications in the form of the reflecting sound waves.
 
+Given: the original angle and the loudness. 
+Output: 
+
 We will tackle this in the following steps:
 1. Calculate Loudness as a function of distance traveled by sound wave.
 - If the loudness is below threshold before reaching another wall stop
@@ -432,4 +435,20 @@ $$
 \text{Space Complexity} = O(1)
 $$
 
-Now this program does not account for all rays passing through which can be understood to be the area of the traingle we are repeatedly using for the ray tracing algorithm. Its also not in 3D but before we do that we must find a way to identify if the user is inside the area hit by reflection wave. we need to find a way to cancel it. We are also not consider when the wave propgate thru the adjacent wall. we could probably run the same algo in parrallel but just given a different start_edge. 
+Now this program does not account for all rays passing through which can be understood to be the area of the traingle we are repeatedly using for the ray tracing algorithm. 
+
+## Creating Adaption for Finding Entire Wavefro nt
+
+The reason we are doing is because we want to see if the reflected wavefront interacts with the user. 
+
+We can see that we can calculate the wavefront at a certain resolution which means the # of ray we track for a particular wavefront. 
+
+Before the first reflection happens all the waves start in the same location. However their start_edge is different which will thus changes the total distance traveled.
+
+We and run the algorithm with different starting positons to be able to track the loudness at certain sections of the room 
+
+The next issue is figuiring out how to time a cancelation wave. 
+
+
+
+
