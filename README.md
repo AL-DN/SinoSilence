@@ -374,10 +374,10 @@ Where:
 
 ## Psuedo Code - 2D Solution
 ```
-function trace_ray(theta, start_edge, l0, threshold):
+function trace_ray(theta, start_edge_length, l0, threshold):
     while True:
         # Step 1: Compute distance traveled in this ray segment
-        hyp = start_edge / cos(theta)
+        hyp = start_edge_length / cos(theta)
         
         # Step 2: Attenuate loudness over that distance
         l1 = calculate_loudness_after_distance(l0, hyp)
@@ -388,10 +388,10 @@ function trace_ray(theta, start_edge, l0, threshold):
             r1 = calculate_loudness_after_reflection(l1)
             
             # Step 5: Compute new start edge for next travel
-            new_start_edge = hyp * sin(theta)  # opp
+            new_start_edge_length = hyp * sin(theta)  # opp
             
             # Recursive call with updated loudness and edge
-            trace_ray(theta, new_start_edge, r1, threshold)
+            trace_ray(theta, new_start_edge_length, r1, threshold)
             return
         else:
             # Exit if no longer bothersome
@@ -407,10 +407,10 @@ $$
 \text{Space Complexity} = O(n) \text{ because of the recursive call. It will add a new stack frame }
 $$
 ```
-function trace_ray(theta, start_edge, l0, threshold):
+function trace_ray(theta, start_edge_length, l0, threshold):
     while True:
         # Step 1: Compute distance traveled in this ray segment
-        hyp = start_edge / cos(theta)
+        hyp = start_edge_length / cos(theta)
         
         # Step 2: Calculate loudness after distance traveled
         l1 = calculate_loudness_after_distance(l0, hyp)
@@ -418,7 +418,7 @@ function trace_ray(theta, start_edge, l0, threshold):
         # Step 3: Check if it's still bothersome
         if l1 > threshold:
             theta = theta
-            start_edge = sin(theta)*hyp 
+            start_edge_length = sin(theta)*hyp 
             l0=l1
             threshold = threshold
         else:
@@ -437,18 +437,71 @@ $$
 
 Now this program does not account for all rays passing through which can be understood to be the area of the traingle we are repeatedly using for the ray tracing algorithm. 
 
-## Creating Adaption for Finding Entire Wavefro nt
+## Creating Adaption for Finding Entire Wavefront
 
-The reason we are doing is because we want to see if the reflected wavefront interacts with the user. 
+The reason we are doing is because simply considering a single ray does not express the sound in real life. 
 
-We can see that we can calculate the wavefront at a certain resolution which means the # of ray we track for a particular wavefront. 
+We can track multiple rays in order to track the entire wavefront. 
 
-Before the first reflection happens all the waves start in the same location. However their start_edge is different which will thus changes the total distance traveled.
+![Finding Distance from source](./images/finding_distance_from_source.png)
 
-We and run the algorithm with different starting positons to be able to track the loudness at certain sections of the room 
+To calculate for each ray we need the paramters theta, start_edge_length, l0, threshold.
 
-The next issue is figuiring out how to time a cancelation wave. 
+The two variables that will need to be adjusted for each ray is the start_edge_length and l0.
 
+1. Adjusting l0 
+
+  $$
+  L_r = L_0 - 20 \log (\frac{r}{r_0})
+  $$
+Where:
+
+- $L_r$ = Loudness at distance `r` (in dB)  
+- $L_0$ = Loudness at reference distance r_0 (in dB)  
+- $r$ = Distance from the source (in meters)  
+- $r_0$ = Reference distance (usually 1 meter)  
+
+Using the Diagram:
+
+$$
+\textbf{If, }
+\sin(\theta) = \frac{opp}{hyp}
+$$
+$$
+hyp = a = \text{spacing between rays}
+$$
+
+### Feature: Finding Dynamic Assignments to Ray Spacing
+
+#### Discussion
+
+![Finding Ray Spacing](./images/finding-ray-spacing.png)
+
+
+#### Analysis
+
+This value must dynamically change based on the resolution the use wishes to compute. We should investigate the balance of increase resolution on the cancellation effectivness and the runtime of the alg. At first thought this should be run in parrallel so it would only be a concern of how many threads are left to use.
+
+Dividing the diagnol the crosses the room into a value < number of rays will push the edge rays closer to the corner of the room which would be best for representing the largest amount of the wavefront. However keeping the resolution low will also loose the detail of loudness in between the edge rays. 
+
+How can we increase the information between the edge rays without computing them to avoid computation costs? 
+
+$$
+\textbf{Then, }
+\sin(90^\circ - \text{Angle of Incidence}) = \frac{\text{r}}{a}
+$$
+$$
+\textbf{Therefore, }
+\text{r} = \sin(90^\circ - \text{Angle of Incidence}) \cdot (a)
+$$
+where $a$ is the specified spacing
+
+
+With this complete we can confidently say we can emulate a wave until it becomes unhearable. However how do we know it is interacting with the person? The better question how do we know it will interact with the person.
+
+Using a User Location device that gives (x,y,z) cooridnates of persons ear would be best for results. 
+
+Also if at any point during the wavefront loudness algorith the angle at which it will travel will coincide with interating with the user trigger the speaker at the correc time
 
 
 
