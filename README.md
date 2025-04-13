@@ -499,9 +499,62 @@ where $a$ is the specified spacing
 
 With this complete we can confidently say we can emulate a wave until it becomes unhearable. However how do we know it is interacting with the person? The better question how do we know it will interact with the person.
 
-Using a User Location device that gives (x,y,z) cooridnates of persons ear would be best for results. 
+## User Positioning System
 
-Also if at any point during the wavefront loudness algorith the angle at which it will travel will coincide with interating with the user trigger the speaker at the correc time
+Computer Vision is not viable beacuse the frame rate of the camera causes a larget delay. For 30FPS the system would not recieve an image to process for 33ms. This delay is too large for our purposes but it would have been nice because the user wouldnt need a location device on them.
 
+We could use the the time of arrival of an array of transmitters to locate the user. These waves should be UWB because the velocity of UWB is close to the speed of light $3\cdot10^8 \text{m/s}$. 
+
+## System Design
+
+### Hardware
+
+The system will use **anchors** which are the transmitters where the location is known.
+
+#### Anchors
+
+The system will need 3 for to compute the postion of the user in the x-z pland(location in room) and an additional one to solve for the xy plant (user height).
+
+For each anchor we can compute
+
+$$
+\text{Distance} = c \cdot \Delta t
+$$
+$c$ is the speed of light 
+$\Delta t = \text{time of flight} = \text{time signal was sent} - \text{time signal was recieved}$ 
+
+Given Locations:
+
+Anchor 1 at (x1,y1,z1)
+Anchor 2 at (x2,y2,z2)
+Anchor 3 at (x3,y3,z3)
+Anchor 4 at (x4,y4,z4)
+
+which will give us distances (d1, d2, d3, d4)
+
+Now we can solve this using least squares to find location (x,y,z)
+
+$$
+(x - x_1)^2 + (y - y_1)^2 + (z - z_1)^2 = d_1^2
+$$
+$$
+(x - x_2)^2 + (y - y_2)^2 + (z - z_2)^2 = d_2^2
+$$
+$$
+(x - x_3)^2 + (y - y_3)^2 + (z - z_3)^2 = d_3^2
+$$
+$$
+(x - x_4)^2 + (y - y_4)^2 + (z - z_4)^2 = d_4^2
+$$
+
+There is a piece of hardware called **DWM1001** that does this excat calculationg in a matter on microseconds. It will also deload the main program and allow for more threads to be used elsewhere. 
+
+Or we could try to avoid using a location device using more advanced emission techniques.
+
+BeamSteering is a way to user phase delay to make th ehearbale noise emeited beam like. This could be used to layer and cover the surface area of the wave. 
+
+## BeamSteering
+
+The pros to this is not just cancellign the wave at one location but cancellign all locations. This sytem would ne base to user beamsteering to create beam like noise projects thatcan be oriented to counteract the wavefront
 
 
