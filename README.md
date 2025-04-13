@@ -549,12 +549,49 @@ $$
 
 There is a piece of hardware called **DWM1001** that does this excat calculationg in a matter on microseconds. It will also deload the main program and allow for more threads to be used elsewhere. 
 
-Or we could try to avoid using a location device using more advanced emission techniques.
+## BeamSteering - 2D
 
-BeamSteering is a way to user phase delay to make th ehearbale noise emeited beam like. This could be used to layer and cover the surface area of the wave. 
+Beamsteering will use phase delay in order to steer the sound at a particular angle
+$$
+\Delta \phi = 2 \pi f \cdot \frac{d\sin(\theta)}{v}
+$$
 
-## BeamSteering
+This means that theta would increases from 0(0 deg)to 1(90deg)
+Inversely, if we decrease theta to -90 deg it would approach -1.
 
-The pros to this is not just cancellign the wave at one location but cancellign all locations. This sytem would ne base to user beamsteering to create beam like noise projects thatcan be oriented to counteract the wavefront
+This would make the phase delay either positive or negative.
+
+## ⚠️ Problem: Negative Phase Delay Is a Problem in Real-Time Processing
+
+In real-time systems, applying **negative phase delay** introduces fundamental issues related to **causality**:
+
+- For the **reference speaker**, a negative phase delay would mean trying to output the signal **before the current time**, but we **do not have access to past (pre-played) samples** in real-time.
+  
+- For the **last speaker in the array**, a negative delay means we would need to output the signal **before we’ve received it**, i.e., we would require access to a **future sample**, which hasn’t arrived yet.
+
+In both cases, the system would be attempting to **respond to a signal out of the bounds of the sample**, which is not physically realizable in a real-time setup.
+
+> **Negative phase delays violate causality** because they require information from the future or pre-played past — neither of which is accessible in real-time processing.
+
+### ✅ Design Solution
+
+Instead of applying negative phase delays directly:
+- **Change the reference speaker** based on steering direction.
+- This allows you to apply only **positive phase delays** across the array.
+- The relative timing is preserved, and all operations stay **causal**.
+
+Now we have the ability to steer the inverse sound a sound in 2D.
+
+We can efficently create the sound by flipping the signs of all amplitudes in the sample. 
+
+Now we have the ability to steer a cancellation noise.
+
+
+## Interwining the Location System and the Beamsteering
+
+
+
+
+
 
 
