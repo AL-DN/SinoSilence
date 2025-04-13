@@ -589,6 +589,24 @@ Now we have the ability to steer a cancellation noise.
 
 ## Interwining the Location System and the Beamsteering
 
+Overall the wave will first
+
+1. First compute its direction 
+2. Will start to trace its wavefront and loudness
+3. Track user
+
+In order to properly time the transmission we need to know
+
+1. The distance of the user from the closest speaker array
+  - So we can find the $t_\text{inverse}$
+2. Find distance of propgating wavefront to user
+  - so we can find $t_\text{intruding}$
+
+if $t_\text{inverse}$ <  $t_\text{intruding}$, then apply time delay before emmission
+
+if $t_\text{inverse}$ >  $t_\text{intruding}$, then apply phase shift to noise
+
+For the inverse boise we also must consider loudness ge the intruding loudness and compute the $l_0$ for inverse noise 
 
 
 
