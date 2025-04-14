@@ -116,7 +116,7 @@ We can run two of these systems on 3 mics one calculating for the horizontal ang
 
 Convert to 3D:
 $$
-\vec{d} =
+\vec{\text{Direction of Intruding Noise}} =
 \begin{bmatrix}
 \sin(\phi) \cos(\theta) \\
 \sin(\phi) \sin(\theta) \\
@@ -284,7 +284,7 @@ As we can see even with 4 mics the delay is estimated at 4.4.5ms. However by usi
 
 ## Handling Reflections
 
-Last but not easiest,  we can  intercept the noise by sending the nosie cancellation sound from anywhean optimal speaker location however, there are ramifications in the form of the reflecting sound waves.
+Last but not easiest,  we can  intercept the noise by sending the noise cancellation sound from the optimal speaker location however. the optimal speaker location is defined as oen that is closest to the user which in turns lowers the latency of the system. However this location since it is not at the same angle as the intruding noise means we also haev to worry about cancelling its reflections along with the intruding noise. This may seem complicated but if we are able to cancel one noise we can just apply the same method to multiple.
 
 Given: the original angle and the loudness. 
 Output: 
