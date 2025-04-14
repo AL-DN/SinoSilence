@@ -505,6 +505,9 @@ However, I have great ambitions to create a system that can haev global cancella
 So therefore instead of spending time and money on that system I will make a simple UI where the user can select a spot they wish to havd the noise cancellation applied to given an outline of their apartment. Production wise, this does seem feasible because every apartment in a building is structured the same. We can also place the beamforming at a height that can clear most objects in the room like a sofa, etc. However the higher you place the phased array of speakers the worse the latency gets because of the travel time of the cancellation wave to the person considering they arent spiderman and hanging from the ceiling.
 But if we consider the average height around 5ft 8 then most peoples ears when standing are actually closer to the cieling than the floor. I think it would be smart to assert if the person is standing or sitting in the location they wish to cancel to provide better cancellation. Although if we do just use a linear phased array of speakers its projection will look like (insert matlab) making it able to hit all unobstructed heights. Which would make the system less costly than a 3D one and not haev to worry about the sitting standing or hanging off ceiling status of the person. However the height at which the array is placed is critical. We can find the optimal height location by running tests on the latency of the system as height increases from middle of wall to ceiling. 
 
+Given the dimensions of the room we can correspond a cartesian plane to the dimesions and can thus create an (x,z)
+we dont need y because of previously mentioned design.
+
 ## System Design
 
 ### Hardware
