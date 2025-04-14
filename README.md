@@ -329,9 +329,11 @@ When a sound wave reflects off a surface, part of its energy is lost depending o
 ### 1. Calculating Sound Intensity from Pressure Amplitude
 
 If you have the pressure amplitude of a sound wave (e.g., from a microphone), you can calculate its intensity using:
+
 $$
 I = \frac{p_{\text{rms}}^2}{\rho v}
 $$
+
 Where:
 - $( I $) = Sound intensity in watts per square meter (W/m²)  
 - $( p_{\text{rms}} $) = Root-mean-square sound pressure (Pa)  
@@ -613,6 +615,18 @@ For the inverse noise we also must consider loudness ge the intruding loudness a
 
 
 
-
+NEXT STEPS:
+1. Nicely Format add graphics and such tie it together.
+2. Start SAS
+  - Create PseudoCode for Phased Array of Mics
+  - Create PseudoCode for Ray Tracing
+  - Create PseudoCode for Phased Array of Speakers
+  - Create PseudoCode for UI
+  - Aggregate List of Hardware Needs / Order Them
+3. Get Coding
+4. Assemble Hardware
+5. Download Software
+6. Unit Test each system
+7. Apply Parrallel Programming and connect Systems
 
 
