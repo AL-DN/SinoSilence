@@ -19,17 +19,16 @@ Initially solving this issue in **2D** will be simpler than in **3D**, and it's 
 
 ## How Can We Find the Direction of the Wave?
 
-### Phased Microphone Array
+### System 1: Phased Array of Microphones
+
 - We have an array of microphones.
 - Depending on the angle, the wavefront will hit one mic first.
 - **Goal**: Choose a delay for each mic so the wave can be summed into a much larger signal.
 
-![Steeriing Angle](./images/understanding-steering-angle.png)
+![Steering Angle](./images/understanding-steering-angle.png)
 
 
 ### Delay 
-
-Phase Delay was used in the development for a system for radio frequencies so I will implement that first.
 
 $$
 \text{Phase Shift between mics}=\Delta \phi = \omega \cdot \Delta t 
@@ -40,8 +39,6 @@ $$`
 $$
   \text{Distance Delay}= L = d\sin(\theta)
 $$
-
-
 
 $$
 \text{Angular Frequency}=\omega = 2 \pi f
@@ -60,16 +57,10 @@ We can see here that phase delay $\propto$
 For our algorithm, we need $\theta$ so if we use algebra we can see that:
 
 $$
- v  
-$$
----
-## Experiment 1:
-
-$$
-v
+\theta = \arcsin(\frac{\Delta \phi v}{2 \pi fd})
 $$
 
-### 🎯 Phase Delay Scanning in a Phased Array System
+### Phase Delay Scanning in a Phased Array System
 
 **If we give the phased array (PA) the correct phase delay**,  
 the summation of the raw audio input from the first microphone  
@@ -81,6 +72,14 @@ will result in **maximum constructive interference**.
 However, if we **do not know the correct angle of arrival**,  
 we can **iterate through all possible phase delays** and measure the result of each summation.
 
+$$
+\text{Summation} = \sum_{i=1}^{n} a_{1n} + a_{2(n+\Delta\phi)}
+$$
+where:  
+$n$ = point in sample  
+$a_{1n}$ = amplitude of wave from mic 1 at n   
+$ a_{2(n+\Delta\phi)}$= amplitude of wave from mic 2 at a phas delayed location 
+
 > **NOTE:**  
 > By limiting the range of phase delays we scan,  
 > we can effectively **block or suppress noise from certain angles**,  
@@ -88,7 +87,7 @@ we can **iterate through all possible phase delays** and measure the result of e
 
 ---
 
-### 📈 Output: Phase Scan Chart
+### Output: Phase Scan Chart
 
 The result of this process is a **chart** where:
 
@@ -111,24 +110,20 @@ We can use this in our algorithm and compute theta efficiently once the correct 
 4. Output Steering Angle Chart
 
 
-Once this is working, we can move onto how to expand to 3D:
+### Expanding to 3D
 
+We can run two of these systems on 3 mics one calculating for the horizontal angle $\theta$ and elevelation $\phi$
 
+Convert to 3D:
+$$
+\vec{d} =
+\begin{bmatrix}
+\sin(\phi) \cos(\theta) \\
+\sin(\phi) \sin(\theta) \\
+\cos(\phi)
+\end{bmatrix}
+$$
 
-
-## ADALM-PLUTO (Software-Defined Radio Platform)
-
-### Receiver Side:
-- 2 receive ports → Low Noise Amplifier (LNA)
-- LNA amplifies the signal while keeping a low noise floor
-- Signal is sent to a mixer for 0 Intermediate Frequency (0 IF) processing using a 2.3 GHz Local Oscillator (LO)
-
-### Transmit Side:
-- Baseband signal is converted to analog via DAC
-- Analog signal is upconverted to RF using the same 2.3 GHz LO
-- Signal is transmitted via antenna
-
----
 
 ## Sinusilence — Acoustic Cancellation System
 
@@ -503,7 +498,12 @@ With this complete we can confidently say we can emulate a wave until it becomes
 
 Computer Vision is not viable beacuse the frame rate of the camera causes a larget delay. For 30FPS the system would not recieve an image to process for 33ms. This delay is too large for our purposes but it would have been nice because the user wouldnt need a location device on them.
 
-We could use the the time of arrival of an array of transmitters to locate the user. These waves should be UWB because the velocity of UWB is close to the speed of light $3\cdot10^8 \text{m/s}$. 
+We could use the the time of arrival of an array of transmitters to locate the user. These waves should be UWB because the velocity of UWB is close to the speed of light $3\cdot10^8 \text{m/s}$ which would provide latency.
+
+However, I have great ambitions to create a system that can haev global cancellation.
+
+So therefore instead of spending time and money on that system I will make a simple UI where the user can select a spot they wish to havd the noise cancellation applied to given an outline of their apartment. Production wise, this does seem feasible because every apartment in a building is structured the same. We can also place the beamforming at a height that can clear most objects in the room like a sofa, etc. However the higher you place the phased array of speakers the worse the latency gets because of the travel time of the cancellation wave to the person considering they arent spiderman and hanging from the ceiling.
+But if we consider the average height around 5ft 8 then most peoples ears when standing are actually closer to the cieling than the floor. I think it would be smart to assert if the person is standing or sitting in the location they wish to cancel to provide better cancellation. Although if we do just use a linear phased array of speakers its projection will look like (insert matlab) making it able to hit all unobstructed heights. Which would make the system less costly than a 3D one and not haev to worry about the sitting standing or hanging off ceiling status of the person. However the height at which the array is placed is critical. We can find the optimal height location by running tests on the latency of the system as height increases from middle of wall to ceiling. 
 
 ## System Design
 
@@ -606,7 +606,7 @@ if $t_\text{inverse}$ <  $t_\text{intruding}$, then apply time delay before emmi
 
 if $t_\text{inverse}$ >  $t_\text{intruding}$, then apply phase shift to noise
 
-For the inverse boise we also must consider loudness ge the intruding loudness and compute the $l_0$ for inverse noise 
+For the inverse noise we also must consider loudness ge the intruding loudness and compute the $l_0$ for inverse noise 
 
 
 
