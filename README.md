@@ -481,12 +481,12 @@ Dividing the diagnol the crosses the room into a value < number of rays will pus
 
 How can we increase the information between the edge rays without computing them to avoid computation costs? 
 
+**Then,**
 $$
-\textbf{Then, }
 \sin(90^\circ - \text{Angle of Incidence}) = \frac{\text{r}}{a}
 $$
+**Therefore,**
 $$
-\textbf{Therefore, }
 \text{r} = \sin(90^\circ - \text{Angle of Incidence}) \cdot (a)
 $$
 where $a$ is the specified spacing
