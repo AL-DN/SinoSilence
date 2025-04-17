@@ -140,9 +140,9 @@ $$
 
 ## Given:
 - Frequency = 50 Hz  
-- Wavelength λ = v / f = 343 m/s / 50 Hz = 6.86 m  
-- ½ λ = 3.43 m  
-- System works best when mic spacing = ½ λ
+- Wavelength \lambda = $\frac{v}{f} = 343 m/s / 50 Hz = 6.86 m $ 
+- $\frac{1}{2} \lambda = 3.43 m $ 
+- System works best when mic spacing = $\frac{1}{2} \lambda$
 
 ---
 
@@ -181,7 +181,7 @@ Minimize the area affected by intruding noises in a quadrilateral room.
 ### Note on Flat Wavefront Assumption:
 - Gray area beyond the purple box = zone where flat wavefronts are expected.
 - Closer sources may have spherical wavefronts, which cause more leakage.
-- Using Fraunhofer Distance (D = 2a² / λ), we see the source must be very close to break flat assumption.
+- Using Fraunhofer Distance (D = 2a² / \lambda), we see the source must be very close to break flat assumption.
 - Convention in acoustics assumes **urban noise = flat wavefront**.
 
 ---
@@ -222,21 +222,21 @@ To determine if anti-noise can effectively cancel an intruding sound, we compare
 
 **Latency** = **Intruding Propagation Time** − **System Response Time**
 
-**Latency** =  *t<sub>intrude</sub>* − (  *t<sub>mic</sub>* + *t<sub>beamform</sub>*+  *t<sub>generate</sub>* + *t<sub>speaker</sub>*+ *t<sub>inverse</sub>*  )
+**Latency** =  $t_intrude$ − (  $t_mic + t_beamform +  t_generate + t_speaker+ t_inverse$  ) 
 
 ---
 
 ### 📘 Definitions:
 
-- **t<sub>intrude</sub>**: Time for the intruding sound to reach the listener  
-  - *t<sub>intrude</sub>* = *d<sub>listener</sub>* / *v*
+- $t_intrude$: Time for the intruding sound to reach the listener  
+  - $t_intrude = d_listener / v$ 
 
-- **t<sub>mic</sub>**: Microphone hardware delay  
-- **t<sub>beamform</sub>**: Time to compute direction of arrival  
-- **t<sub>generate</sub>**: Time to generate the anti-noise signal  
-- **t<sub>speaker</sub>**: Speaker output delay  
-- **t<sub>inverse</sub>**: Time for the anti-noise to reach the listener  
-  - *t<sub>inverse</sub>* = *d<sub>spk</sub>* / *v*
+- $t_mic$: Microphone hardware delay  
+-$ t_beamform$: Time to compute direction of arrival  
+- $t_generate$: Time to generate the anti-noise signal  
+- $t_speaker$: Speaker output delay  
+- $t_inverse$: Time for the anti-noise to reach the listener  
+  - $t_inverse = d_spk / v$
 
 
 ### ✅ Decision Logic
@@ -262,7 +262,7 @@ We can test the worst case by considering when the intruding noise reaches the u
 ## Constants:
 - Speed of sound (v): **343 m/s**
 - Fixed system delays (excluding propagation):  
-**System Time** =    *t<sub>mic</sub>* + *t<sub>beamform</sub>*+  *t<sub>generate</sub>* + *t<sub>speaker</sub>*+ *t<sub>inverse</sub>*  
+**System Time** =    *t_mic* + *t_beamform*+  *t_generate* + *t_speaker*+ *t_inverse*  
 
 ---
 
@@ -284,90 +284,95 @@ As we can see even with 4 mics the delay is estimated at 4.4.5ms. However by usi
 
 ## Handling Reflections
 
-Last but not easiest,  we can  intercept the noise by sending the noise cancellation sound from the optimal speaker location however. the optimal speaker location is defined as oen that is closest to the user which in turns lowers the latency of the system. However this location since it is not at the same angle as the intruding noise means we also haev to worry about cancelling its reflections along with the intruding noise. This may seem complicated but if we are able to cancel one noise we can just apply the same method to multiple.
+Last but not easiest,  we can  intercept the noise by sending the noise cancellation sound from the optimal speaker location however. the optimal speaker location is defined as one that is closest to the user which in turns lowers the latency of the system. However this location since it is not at the same angle as the intruding noise means we also haev to worry about cancelling its reflections along with the intruding noise. This may seem complicated but if we are able to cancel one noise we can just apply the same method to multiple.
 
-Given: the original angle and the loudness. 
-Output: 
+Given: 
+1. Locations of the rays we need to compute
+2. Original Loudness. 
+3. Direction
+4. Location we wish to cancel
 
-We will tackle this in the following steps:
-1. Calculate Loudness as a function of distance traveled by sound wave.
-- If the loudness is below threshold before reaching another wall stop
-2. Calulate Loudness after reflection
-3. Repeat Step 1
+We will need to compute:
+1. Position of Rays as a function of time
+2. Loudness of Rays asa function of distance
+3. If the wavefront WILL interact with user
 
-Now if it will never hit the user than it doesnt really matter 
+## 1. Postion of Wavefront
 
-## 1. 📉 Loudness Decrease Over Distance
+$ \vec{r_0} = (x_0,y_0) = \text{location of sound source}$   
+$\vec{d_i} = (cos_{\theta_i},sin_{\theta_i}) = \text{direction of ray i}$   
+$v = 343 m/s$ 
 
-In free space (with no reflections), sound intensity decreases with the square of the distance. This is known as the **inverse square law**.
+At time t, the position of the ray can be expressed as:
+$$
+\vec{r_i}(t) = \vec{r_0} + v \cdot (t-t_{start}) \cdot \vec{d_i}
+$$
 
-The **loudness in decibels** at a given distance can be calculated as:
+However after refection we must recompute the $\vec{d_i}:$
 
-**L<sub>r</sub> = L<sub>0</sub> - 20 &middot; log<sub>10</sub>(r / r<sub>0</sub>)**
+$\vec{n}$ = normal of wall/floor/ceiling 
 
-Where:
+$\vec{d_{i}} = \vec{d_{i}} - 2\cdot proj_{\vec{n}}(\vec{d})$ 
 
-- **L<sub>r</sub>** = Loudness at distance `r` (in dB)  
-- **L<sub>0</sub>** = Loudness at reference distance r<sub>0</sub> (in dB)  
-- **r** = Distance from the source (in meters)  
-- **r<sub>0</sub>** = Reference distance (usually 1 meter)  
+$proj_{\vec{n}}(\vec{d}) = (\vec{d_i}\cdot\vec{n})\vec{n}$
 
-> 🔁 Every time the distance **doubles**, the loudness drops by approximately **6 dB**.
 
-### 🧪 Example
+## 1. Loudness of Wavefront
+### In free space, use inverse quare law
 
-If a sound is 80 dB at 1 meter, the loudness at 2 meters is:
 
-**L<sub>2</sub> = 80 - 20 &middot; log<sub>10</sub>(2 / 1) = 80 - 6.02 ≈ 74 dB**
+- $L_r$ = Loudness at distance `r` (in dB)  
+- $L_0$ = Loudness at reference distance $r_0$ (in dB)  
+- $r$ = Distance from the source (in meters)  
+- $r_0$ = Reference distance (usually 1 meter)  
 
-We need to compute the direction of the reflected sound wave until the amplitude is negligible. 
+$L_r = L_0 - 20 \cdot log_{10}(\frac{r}{r_0})$
 
-## 📉 2. Loudness After Reflection
+
+### Finding $L_0$ 
 
 When a sound wave reflects off a surface, part of its energy is lost depending on the surface's properties. This affects both its **intensity** and **perceived loudness**.
 
-### 1. Calculating Sound Intensity from Pressure Amplitude
+### a) 
 
-If you have the pressure amplitude of a sound wave (e.g., from a microphone), you can calculate its intensity using:
+- $(I)$ = Sound intensity in watts per square meter (W/m²)  
+- $(p_{\text{rms}})$ = Root-mean-square sound pressure ($Pa$)  
+- $( \rho )$ = Air density (≈ 1.21 kg/m³ at room temperature)  
+- $(v)$ = Speed of sound in air ($\approx$ 343 m/s)
 
 $$
 I = \frac{p_{\text{rms}}^2}{\rho v}
 $$
 
-Where:
-- $( I $) = Sound intensity in watts per square meter (W/m²)  
-- $( p_{\text{rms}} $) = Root-mean-square sound pressure (Pa)  
-- $( \rho $) = Air density (≈ 1.21 kg/m³ at room temperature)  
-- $( v $) = Speed of sound in air (≈ 343 m/s)
-
-
-### 2. Reflected Sound Intensity
+### b)
 
 The intensity of the reflected sound wave is:
 
-**I<sub>r</sub> = R² · I<sub>i</sub>**
+$I_r = R^2 · I_i$
 
 Where:
 
-- **I<sub>r</sub>** = Reflected sound intensity (W/m²)  
-- **I<sub>i</sub>** = Incident (original) sound intensity (W/m²)  
-- **R** = Reflection coefficient (0 ≤ R ≤ 1), specific to the material
+- $I_r$ = Reflected sound intensity (W/m²)  
+- $I_i$ = Incident (original) sound intensity (W/m²)  
+- $R$ = Reflection coefficient (0 ≤ R ≤ 1), specific to the material
 
----
-
-### 📊 2. Sound Level in Decibels
+### c)
 
 The loudness of a sound in decibels (dB) is calculated from its intensity:
 
-**L = 10 · log₁₀(I / I₀)**
+$$
+L = 10 \cdot \log_{10}(\frac{I}{I_0})
+$$
 
 Where:
 
 - **L** = Sound level in decibels (dB)  
-- **I** = Sound intensity (W/m²)  
-- **I₀** = Reference intensity = 10⁻¹² W/m² (threshold of hearing)
+- **I** = Sound intensity ($\frac{W}{m^2}$)  
+- **I₀** = Reference intensity = $10^{-12}$ $\frac{W}{m^2}$ (threshold of hearing)
 
 ---
+
+Now that we can find the position of a ray in 2D and find its loudness
 
 ## Psuedo Code - 2D Solution
 ```
@@ -403,6 +408,7 @@ $$
 $$
 \text{Space Complexity} = O(n) \text{ because of the recursive call. It will add a new stack frame }
 $$
+
 ```
 function trace_ray(theta, start_edge_length, l0, threshold):
     while True:
@@ -422,6 +428,7 @@ function trace_ray(theta, start_edge_length, l0, threshold):
             # Exit if no longer bothersome
             return
 ```
+
 $$
 \text{n = number of reflections before the sound will drop below threshold }
 $$
@@ -432,7 +439,6 @@ $$
 \text{Space Complexity} = O(1)
 $$
 
-Now this program does not account for all rays passing through which can be understood to be the area of the traingle we are repeatedly using for the ray tracing algorithm. 
 
 ## Creating Adaption for Finding Entire Wavefront
 
@@ -446,14 +452,14 @@ To calculate for each ray we need the paramters theta, start_edge_length, l0, th
 
 The two variables that will need to be adjusted for each ray is the start_edge_length and l0.
 
-1. Adjusting l0 
+1. Adjusting $l_0$ 
 
   $$
   L_r = L_0 - 20 \log (\frac{r}{r_0})
   $$
 Where:
 
-- $L_r$ = Loudness at distance `r` (in dB)  
+- $L_r$ = Loudness at distance $r$ (in dB)  
 - $L_0$ = Loudness at reference distance r_0 (in dB)  
 - $r$ = Distance from the source (in meters)  
 - $r_0$ = Reference distance (usually 1 meter)  
@@ -479,7 +485,8 @@ $$
 
 This value must dynamically change based on the resolution the use wishes to compute. We should investigate the balance of increase resolution on the cancellation effectivness and the runtime of the alg. At first thought this should be run in parrallel so it would only be a concern of how many threads are left to use.
 
-Dividing the diagnol the crosses the room into a value < number of rays will push the edge rays closer to the corner of the room which would be best for representing the largest amount of the wavefront. However keeping the resolution low will also loose the detail of loudness in between the edge rays. 
+If the spacing for n rays generated by dividing the diagnol that crosses the room into a value < n it will push the edge rays closer to the corner of the room which would be best for representing the largest amount of the wavefront. However keeping the resolution low will also loose the detail of loudness in between the edge rays.
+
 
 How can we increase the information between the edge rays without computing them to avoid computation costs? 
 
@@ -613,8 +620,6 @@ if $t_\text{inverse}$ >  $t_\text{intruding}$, then apply phase shift to noise
 
 For the inverse noise we also must consider loudness ge the intruding loudness and compute the $l_0$ for inverse noise 
 
-
-
 NEXT STEPS:
 1. Nicely Format add graphics and such tie it together.
 2. Start SAS
@@ -628,5 +633,3 @@ NEXT STEPS:
 5. Download Software
 6. Unit Test each system
 7. Apply Parrallel Programming and connect Systems
-
-
